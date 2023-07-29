@@ -19,3 +19,7 @@
 
 # Go workspace file
 go.work
+
+/cmd/server/__debug_bin
+.env
+tmp
