@@ -8,6 +8,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o eros-api cmd/server/main.go
 
 FROM alpine:latest AS production
 
+RUN apk add --update --no-cache bash tzdata shadow su-exec
+
 # setup user
 RUN groupmod -g 1000 users && \
   useradd -u 911 -U -d /data abc && \
