@@ -65,6 +65,7 @@ func groupV1Routes(e *echo.Group, h *Handler) {
 	scriptGroup := e.Group("/script")
 	scriptGroup.POST("", h.CreateScript)
 	scriptGroup.GET("", h.GetScripts)
+	scriptGroup.GET("/:id", h.GetScript)
 	scriptGroup.GET("/:id/reports", h.GetScriptReports)
 
 	// Report

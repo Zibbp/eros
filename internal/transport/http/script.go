@@ -3,6 +3,7 @@ package http
 import (
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/zibbp/eros/ent"
 	"github.com/zibbp/eros/internal/script"
@@ -11,6 +12,7 @@ import (
 type ScriptService interface {
 	CreateScript(c echo.Context, scriptDto script.Script) (*ent.Script, error)
 	GetScripts(c echo.Context, limit int, offset int) (script.PaginationResponse, error)
+	GetScript(c echo.Context, id uuid.UUID) (*ent.Script, error)
 }
 
 type CreateScriptRequest struct {
@@ -66,4 +68,20 @@ func (h *Handler) GetScripts(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, paginationResponse)
+}
+
+func (h *Handler) GetScript(c echo.Context) error {
+	id := c.Param("id")
+
+	uuid, err := uuid.Parse(id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	script, err := h.Service.ScriptService.GetScript(c, uuid)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, script)
 }

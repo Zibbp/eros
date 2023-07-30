@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
 	"github.com/zibbp/eros/ent"
+	entReport "github.com/zibbp/eros/ent/report"
 	"github.com/zibbp/eros/ent/script"
 	"github.com/zibbp/eros/internal/database"
 	"github.com/zibbp/eros/internal/utils"
@@ -63,7 +64,7 @@ func (s *Service) GetScripts(c echo.Context, limit int, offset int) (PaginationR
 	query := s.db.Client.Script.Query()
 
 	var total int
-	scripts, err := query.Order(ent.Desc(script.FieldUpdatedAt)).Limit(limit).Offset(offset).WithReports(func(q *ent.ReportQuery) { q.Limit(1) }).All(c.Request().Context())
+	scripts, err := query.Order(ent.Desc(script.FieldUpdatedAt)).Limit(limit).Offset(offset).All(c.Request().Context())
 	if err != nil {
 		if ent.IsNotFound(err) {
 			log.Info().Msg("No scripts found")
@@ -82,6 +83,18 @@ func (s *Service) GetScripts(c echo.Context, limit int, offset int) (PaginationR
 		}
 	}
 
+	// fill reports for each script
+	for _, script := range scripts {
+		reports, err := script.QueryReports().Order(ent.Desc(entReport.FieldCreatedAt)).Limit(1).All(c.Request().Context())
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to get script reports")
+			return paginationResponse, err
+		}
+		if len(reports) > 0 {
+			script.Edges.Reports = reports
+		}
+	}
+
 	paginationResponse.Pagination = utils.Pagination{
 		Offset: offset,
 		Limit:  limit,
@@ -92,4 +105,19 @@ func (s *Service) GetScripts(c echo.Context, limit int, offset int) (PaginationR
 	paginationResponse.Data = scripts
 
 	return paginationResponse, nil
+}
+
+func (s *Service) GetScript(c echo.Context, id uuid.UUID) (*ent.Script, error) {
+	script, err := s.db.Client.Script.Query().Where(script.IDEQ(id)).First(c.Request().Context())
+	if err != nil {
+		if ent.IsNotFound(err) {
+			log.Info().Msg("Script not found")
+			// handle here if script is not found
+		} else {
+			log.Error().Err(err).Msg("Failed to get script")
+			return nil, err
+		}
+	}
+
+	return script, nil
 }

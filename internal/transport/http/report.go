@@ -19,7 +19,7 @@ type ReportService interface {
 type CreateReportRequest struct {
 	Name     string             `form:"name" validate:"required"`
 	Hostname string             `form:"hostname" validate:"required"`
-	Status   utils.ReportStatus `form:"status" validate:"required,oneof=success failure"`
+	Status   utils.ReportStatus `form:"status" validate:"required,oneof=success failed"`
 }
 
 func (h *Handler) CreateReport(c echo.Context) error {
