@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -15,9 +17,11 @@ import (
 
 func Run() error {
 
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal().Err(err).Msg("Error loading .env file")
+	if os.Getenv("ENV") != "develpoment" {
+		err := godotenv.Load()
+		if err != nil {
+			log.Fatal().Err(err).Msg("Error loading .env file")
+		}
 	}
 
 	config := config.GetConfig()
