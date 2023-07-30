@@ -17,7 +17,7 @@ import (
 
 func Run() error {
 
-	if os.Getenv("ENV") != "develpoment" {
+	if os.Getenv("ENV") == "development" {
 		err := godotenv.Load()
 		if err != nil {
 			log.Fatal().Err(err).Msg("Error loading .env file")
