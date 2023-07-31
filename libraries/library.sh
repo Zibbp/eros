@@ -1,6 +1,6 @@
 #!/bin/bash
 
-log_file="/tmp/ceres_$RANDOM.log"  # Please replace this with the correct path
+log_file="/tmp/eros_$RANDOM.log"  # Please replace this with the correct path
 status="success"
 hostname=$HOSTNAME  # Get the hostname
 script_name=$(basename ${BASH_SOURCE[1]})  # Get the name of the script that sourced the library
